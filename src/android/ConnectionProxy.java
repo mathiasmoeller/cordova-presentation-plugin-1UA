@@ -4,7 +4,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.LOG;
 
 /**
- * Created by Lo on 19.06.2017.
+ * This class acts as an abstraction layer for Sender and ReceiverProxy
  */
 public abstract class ConnectionProxy {
     private PresentationSession session;

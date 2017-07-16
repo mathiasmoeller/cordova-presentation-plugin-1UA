@@ -156,12 +156,6 @@ public class SecondScreenPresentation extends Presentation {
         });
     }
 
-    public void cancel() {
-        LOG.d(LOG_TAG, "cancel()");
-        super.cancel();
-        //destroyWebView();
-    }
-
     /**
      * @return the URL of the display html page
      */
@@ -173,11 +167,6 @@ public class SecondScreenPresentation extends Presentation {
         LOG.d(LOG_TAG, "connect()");
         loadUrl(getDisplayUrl());
         show();
-    }
-
-    public void close() {
-        LOG.d(LOG_TAG,"close()");
-        loadUrl(getDisplayUrl());
     }
 
     public void terminate() {

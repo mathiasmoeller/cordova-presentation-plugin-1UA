@@ -3,6 +3,9 @@ import android.webkit.JavascriptInterface;
 import org.apache.cordova.LOG;
 
 
+/**
+ * The JavaScriptInterface that is added to the Webview of the receiving context.
+ */
 public class ReceiverJavaScriptInterface {
     private static final String LOG_TAG = "ReceiverJavaScriptInterface";
     private SecondScreenPresentation presentation;
