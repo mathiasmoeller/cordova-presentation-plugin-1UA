@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="de.fhg.fokus.famium.presentation"
+    version="0.0.3">
+    <name>Presentation</name>
+    <description>Cordova Presentation API Plugin 1UA Mode</description>
+    <license>MIT</license>
+    <keywords>famium,cordova,presentation,presentation api,second screen,multi-screen,webscreens</keywords>
+    <repo>https://github.com/mathiasmoeller/cordova-presentation-plugin-1UA.git</repo>
+    <issue>https://github.com/mathiasmoeller/cordova-presentation-plugin-1UA/issues</issue>
+
+    <js-module src="www/dist/scripts.js" name="request">
+        <clobbers target="window.PresentationRequest" />
+    </js-module>
+
+    <js-module src="www/NavigatorPresentation.js" name="presentation">
+        <clobbers target="navigator.presentation" />
+    </js-module>
+
+    <asset src="www/presentation" target="presentation" />
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Presentation">
+                <param name="android-package" value="de.fhg.fokus.famium.presentation.CDVPresentationPlugin"/>
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
+
+       <source-file src="src/android/CDVPresentationPlugin.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+	   <source-file src="src/android/PresentationSession.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+	   <source-file src="src/android/NavigatorPresentationJS.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/SecondScreenPresentation.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/State.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/ReceiverProxy.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/SenderProxy.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/ConnectionProxy.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/ReceiverJavaScriptInterface.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+        <source-file src="src/android/NoCallback.java" target-dir="src/de/fhg/fokus/famium/presentation" />
+
+     </platform>
+
+</plugin>
