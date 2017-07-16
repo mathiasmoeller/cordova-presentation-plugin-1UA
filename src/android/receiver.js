@@ -275,7 +275,7 @@
                 jsInterface.setOnPresent();
                 break;
           case 'closed':
-                var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason}); // TODO: message
+                var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason});
                 connection.onclose(event);
                 break;
             case 'terminated':
