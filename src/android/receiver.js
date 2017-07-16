@@ -1,4 +1,5 @@
 (function(delegate) {
+
   // the presentation interface available in the receiving context
   var NavigatorPresentation = function() {
     var presentationReceiver = new PresentationReceiver();
@@ -26,7 +27,8 @@
       connections.push(presentationConnection);
       resolve(presentationConnectionList);
       if (presentationConnectionList.onconnectionavailable) {
-        presentationConnectionList.onconnectionavailable(presentationConnection);
+        var evt = new PresentationConnectionAvailableEvent('connectionavailable', {connection: connection, value: true});
+        presentationConnectionList.onconnectionavailable(evt);
       }
     };
   });
@@ -263,28 +265,28 @@
     }
   };
 
-    function handleStateChangeEvent(connection, state, reason, message) {
-        connection.state = state;
-        switch (state) {
-            case 'connected':
-                connection.onconnect(connection);
-                break;
-            case 'connecting':
-                jsInterface.setOnPresent();
-                break;
-          case 'closed':
-                var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason}); // TODO: message
-                connection.onclose(event);
-                break;
-            case 'terminated':
-                connection.onterminate(connection);
-                connection = undefined;
-                break;
-            default:
-                console.error('Unknown connection state: ', state);
-                break;
-        }
+  function handleStateChangeEvent(connection, state, reason, message) {
+    connection.state = state;
+    switch (state) {
+      case 'connected':
+        connection.onconnect(connection);
+        break;
+      case 'connecting':
+        jsInterface.setOnPresent();
+        break;
+      case 'closed':
+        var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason}); // TODO: message
+        connection.onclose(event);
+        break;
+      case 'terminated':
+        connection.onterminate(connection);
+        connection = undefined;
+        break;
+      default:
+        console.error('Unknown connection state: ', state);
+        break;
     }
+  }
 
   var delegate = new NavigatorPresentationDelegate();
   return delegate;
@@ -311,3 +313,23 @@ function PresentationConnectionCloseEvent(type, eventInitDict) {
 }
 
 PresentationConnectionCloseEvent.prototype = Event.prototype;
+
+// interface PresentationConnectionAvailableEvent ////////////////////////////
+
+function PresentationConnectionAvailableEvent(type, eventInitDict) {
+  this.type = type;
+  var connection = eventInitDict.connection;
+  var value = eventInitDict.available;
+  Object.defineProperty(this, 'connection', {
+    get: function() {
+      return connection;
+    }
+  });
+  Object.defineProperty(this, 'value', {
+    get: function() {
+      return value;
+    }
+  });
+}
+
+PresentationConnectionAvailableEvent.prototype = Event.prototype;
