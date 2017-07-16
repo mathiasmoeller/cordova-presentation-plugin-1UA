@@ -9,7 +9,7 @@ import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created by Lo on 19.06.2017.
+ * Represents a proxy used to send events and messages to the receiving context.
  */
 public class ReceiverProxy  extends ConnectionProxy{
     private static final String LOG_TAG = "ReceiverProxy";

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Created by Lo on 19.06.2017.
+ * This class acts as proxy to send messages and events to the sender context.
  */
 public class SenderProxy extends ConnectionProxy{
     private static final String LOG_TAG = "SenderProxy";

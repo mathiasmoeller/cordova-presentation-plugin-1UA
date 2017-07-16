@@ -265,28 +265,28 @@
     }
   };
 
-  function handleStateChangeEvent(connection, state, reason, message) {
-    connection.state = state;
-    switch (state) {
-      case 'connected':
-        connection.onconnect(connection);
-        break;
-      case 'connecting':
-        jsInterface.setOnPresent();
-        break;
-      case 'closed':
-        var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason}); // TODO: message
-        connection.onclose(event);
-        break;
-      case 'terminated':
-        connection.onterminate(connection);
-        connection = undefined;
-        break;
-      default:
-        console.error('Unknown connection state: ', state);
-        break;
+    function handleStateChangeEvent(connection, state, reason, message) {
+        connection.state = state;
+        switch (state) {
+            case 'connected':
+                connection.onconnect(connection);
+                break;
+            case 'connecting':
+                jsInterface.setOnPresent();
+                break;
+          case 'closed':
+                var event = new PresentationConnectionCloseEvent('close', {message: message, reason: reason}); // TODO: message
+                connection.onclose(event);
+                break;
+            case 'terminated':
+                connection.onterminate(connection);
+                connection = undefined;
+                break;
+            default:
+                console.error('Unknown connection state: ', state);
+                break;
+        }
     }
-  }
 
   var delegate = new NavigatorPresentationDelegate();
   return delegate;

@@ -31,6 +31,7 @@
   "author": "Mathias Möller, Lorenzo Toso, Vincent Deuschle",
   "license": "MIT",
   "devDependencies": {
+    "del": "^3.0.0",
     "gulp-replace-task": "^0.11.0",
     "fs": "0.0.1-security",
     "gulp": "^3.9.1",

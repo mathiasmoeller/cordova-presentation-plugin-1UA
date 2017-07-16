@@ -31,15 +31,6 @@ var exec = function() {
 // the presentation interface available in the controlling context
 function NavigatorPresentation() {
   var defaultRequest;
-  var defaultDisplay = makeAbs('presentation/display.html');
-
-  var c = document.getElementsByTagName('script');
-  for (var i = 0; i < c.length; i++) {
-    if (c[i] && c[i].src && c[i].src.indexOf('/cordova.js') != -1) {
-      defaultDisplay = c[i].src.replace('/cordova.js', '/presentation/display.html');
-    }
-  }
-  exec(/*successCallback*/Function, /*errorCallback*/Function, 'Presentation', 'setDefaultDisplay', [defaultDisplay]);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 

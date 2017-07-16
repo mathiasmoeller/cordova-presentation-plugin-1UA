@@ -1,6 +1,9 @@
 package de.fhg.fokus.famium.presentation;
-//import mock.*;
 
+
+/**
+ * Contains all states a session can have
+ */
 public enum State {
     closed,
     connected,

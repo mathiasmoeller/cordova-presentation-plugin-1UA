@@ -5,6 +5,7 @@ var replace = require('gulp-replace-task');
 var fs = require('fs');
 var rename = require("gulp-rename");
 var runSequence = require("run-sequence");
+var del = require("del");
 
 gulp.task("uglify", function() {
   return gulp.src(['www/*.js', '!www/NavigatorPresentation.js'])
@@ -53,9 +54,13 @@ gulp.task('receiver_insert', function () {
     .pipe(gulp.dest('src/android/'));
 });
 
+gulp.task('receiver_cleanup', function() {
+  return del(['src/android/receiver_min.js']);
+});
+
 gulp.task("default", function(callback) {
   runSequence("uglify", "receiver", callback);
 });
 gulp.task("receiver", function(callback) {
-  runSequence("receiver_min", "receiver_load", "receiver_insert", callback);
+  runSequence("receiver_min", "receiver_load", "receiver_insert", "receiver_cleanup", callback);
 });

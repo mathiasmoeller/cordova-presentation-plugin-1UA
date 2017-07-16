@@ -30,10 +30,10 @@ public class SecondScreenPresentation extends Presentation {
      * @param display      the {@link Display} associated to this presentation
      * @param displayUrl   the URL of the display html page to present on the display as default page
      */
-    public SecondScreenPresentation(Activity outerContext, Display display, String displayUrl) {
+    public SecondScreenPresentation(Activity outerContext, Display display) {
         super(outerContext, display);
         this.outerContext = outerContext;
-        this.displayUrl = displayUrl == null ? DEFAULT_DISPLAY_URL : displayUrl + "#" + display.getName();
+        this.displayUrl = DEFAULT_DISPLAY_URL;
     }
 
     /**

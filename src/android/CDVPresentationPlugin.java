@@ -1,21 +1,3 @@
-/*
- * Copyright 2014 Fraunhofer FOKUS
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * AUTHORS: Louay Bassbouss <louay.bassbouss@fokus.fraunhofer.de>
- *          Martin Lasak <martin.lasak@fokus.fraunhofer.de>
- */
 package de.fhg.fokus.famium.presentation;
 
 import java.util.Collection;
@@ -42,7 +24,9 @@ import android.hardware.display.DisplayManager;
 import android.view.Display;
 
 /**
- * Entry Class for Presentation API Cordova Plugin. This Plugin implements the W3C Presentation API as described in the final report  {@link http://www.w3.org/2014/secondscreen/presentation-api/20140721/} of the Second Screen Presentation API Community Group.
+ * Entry Class for Presentation API Cordova Plugin.
+ * This Plugin implements the W3C Presentation API as described in the final report
+ * {@link http://www.w3.org/2014/secondscreen/presentation-api/20140721/} of the Second Screen Presentation API Community Group.
  */
 public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManager.DisplayListener {
     private static final String LOG_TAG = "CDVPresentationPlugin";
@@ -58,39 +42,10 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
         LOG.d(LOG_TAG, "----------INIT----------");
         activity = cordova.getActivity();
         initDisplayManager();
-        initVirtualDisplay();
         super.initialize(cordova, webView);
-    }
-
-    private class ExceptionHandler implements Thread.UncaughtExceptionHandler {
-        @Override
-        public void uncaughtException(Thread thread, Throwable ex) {
-            LOG.e(LOG_TAG, "uncaught_exception_handler: uncaught exception in thread " + thread.getName(), ex);
-
-
-            StackTraceElement[] elements = ex.getStackTrace();
-            for (int i = 0; i < elements.length; i++) {
-                LOG.e(LOG_TAG, elements[i].toString());
-            }
-
-
-            //hack to rethrow unchecked exceptions
-            if (ex instanceof RuntimeException)
-                throw (RuntimeException) ex;
-            if (ex instanceof Error)
-                throw (Error) ex;
-
-            //this should really never happen
-            LOG.e(LOG_TAG, "uncaught_exception handler: unable to rethrow checked exception");
-        }
-    }
-
-    private void initVirtualDisplay() {
-        getDisplayManager().createVirtualDisplay("testDisplay", 1920, 1080, 72, null, DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION);
     }
 
     @Override
@@ -137,9 +92,6 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
         } else if (action.equals("presentationSessionTerminate")) {
             LOG.d(LOG_TAG, "presentationSessionTerminate");
             return presentationSessionTerminate(args, callbackContext);
-        } else if (action.equals("setDefaultDisplay")) {
-            LOG.d(LOG_TAG, "setDefaultDisplay");
-            return setDefaultDisplay(args, callbackContext);
         }
         return false;
     }
@@ -149,7 +101,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
     // --------------------------------------------------------------------------
 
     /**
-     * This method will be called when navigator.presentation.onavialablechange is set to a valid JavaScript function in the controlling page
+     * This method will be called when navigator.presentation.onavailablechange is set to a valid JavaScript function in the controlling page
      *
      * @param args            is an empty {@link JSONArray}
      * @param callbackContext the Cordova {@link CallbackContext} associated with this call
@@ -166,12 +118,12 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
         return true;
     }
 
+
     /**
-     * This method will be called when {@code navigator.presentation.onavialablechange} is set to null or undefined in the controlling page
-     *
-     * @param args            empty {@link JSONArray}. No parameters need to be passed to this call
-     * @param callbackContext the Cordova {@link CallbackContext} associated with this call
-     * @return
+     * Deletes the change listener for availability events
+     * @param args ignored
+     * @param callbackContext always success
+     * @return always true
      * @throws JSONException
      */
     private boolean clearWatchAvailableChange(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -185,8 +137,8 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
     }
 
     /**
-     * This method will be called when {@code navigator.presentation.requestSession(url)} is called in the controlling page. A Display selection dialog will be shown to the user to pick a display.
-     * An initial Session will be send back to the presenting page.
+     * This method will be called when {@code navigator.presentation.requestSession(url)} is called in the controlling page.
+     * An initial session will be send back to the presenting page.
      *
      * @param args            a {@link JSONArray} with one argument args[0]. args[0] contains the URL of the presenting page to open on the second screen
      * @param callbackContext the Cordova {@link CallbackContext} associated with this call
@@ -195,14 +147,29 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
      */
     private boolean requestSession(JSONArray args, CallbackContext callbackContext) throws JSONException {
         String url = args.getString(0);
-        PresentationSession session = new PresentationSession(getActivity(), url    );
+        PresentationSession session = new PresentationSession(activity, url);
         getSessions().put(session.getId(), session);
         SenderProxy.sendSessionResult(session.getId(), callbackContext, null);
         return true;
     }
 
+
+    /**
+     * A Display selection dialog will be shown to the user to pick a display.
+     * Then the session starts connecting to the receiver.
+     * @param args Contains the session id
+     * @param callbackContext Includes the session callback that will be used for all session events
+     * @return always true
+     * @throws JSONException
+     */
     private boolean startSession(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        PresentationSession session = getSessions().get(args.getString(0));
+        String id = args.getString(0);
+        PresentationSession session = getSessions().get(id);
+
+        if(session == null) {
+            callbackContext.error("Session " + id + " has not been requested yet.");
+            return false;
+        }
         showDisplaySelectionDialog(session);
         session.setCallbackContext(callbackContext);
         session.connect();
@@ -211,7 +178,15 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
     }
 
     private boolean reconnectSession(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        PresentationSession session = getSessions().get(args.getString(0));
+
+        String id = args.getString(0);
+        PresentationSession session = getSessions().get(id);
+        if(session == null)
+        {
+            callbackContext.error("Session " + id + " not found.");
+            return false;
+        }
+
         SecondScreenPresentation presentation = session.getPresentation();
         if (presentation == null) {
             callbackContext.error("no presentation selected for reconnect");
@@ -280,12 +255,12 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
             callbackContext.error("session not found");
             return false;
         }
-        getActivity().runOnUiThread(new Runnable()
+        activity.runOnUiThread(new Runnable()
         {
             public void run()
             {
                 LOG.d(LOG_TAG, "presentationSessionTerminate(id: " + id + ")");
-                recreatePresentationObjectSync(session);
+                recreatePresentationObject(session);
                 session.terminate();
                 getSessions().remove(id);
                 callbackContext.success();
@@ -295,17 +270,13 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
         return true;
     }
 
-    private void recreatePresentationObject(final PresentationSession session) {
-        getActivity().runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                recreatePresentationObjectSync(session);
-            }
-        });
-    }
-    private void recreatePresentationObjectSync(PresentationSession session) {
-        LOG.d(LOG_TAG, "recreatePresentationObjectSync(" + session.getId()  + ")");
+    /**
+     * This method ultimately destroys the Presentation Object associated with the terminated session
+     * and creates a new Presentation Object for the now reusable display.
+     * @param session The terminated session
+     */
+    private void recreatePresentationObject(PresentationSession session) {
+        LOG.d(LOG_TAG, "recreatePresentationObject(" + session.getId()  + ")");
 
         SecondScreenPresentation oldPresentation = session.getPresentation();
         if (oldPresentation == null) {
@@ -318,31 +289,8 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
             return;
         }
 
-        SecondScreenPresentation newPresentation = new SecondScreenPresentation(getActivity(), display, getDefaultDisplay());
+        SecondScreenPresentation newPresentation = new SecondScreenPresentation(activity, display);
         getPresentations().put(display.getDisplayId(), newPresentation);
-    }
-
-    /**
-     * @param args
-     * @param callbackContext
-     * @return
-     * @throws JSONException
-     */
-    private boolean setDefaultDisplay(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        defaultDisplay = args.getString(0);
-        return true;
-    }
-
-    /**
-     * @return the url of the default display
-     */
-    public String getDefaultDisplay() {
-        return defaultDisplay;
-    }
-
-
-    private Activity getActivity() {
-        return activity;
     }
 
     private DisplayManager getDisplayManager() {
@@ -353,7 +301,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
     }
 
     private void initDisplayManager() {
-        displayManager = (DisplayManager) getActivity().getSystemService(Activity.DISPLAY_SERVICE);
+        displayManager = (DisplayManager) activity.getSystemService(Activity.DISPLAY_SERVICE);
         displayManager.registerDisplayListener(this, null);
         for (Display display : displayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)) {
             addDisplay(display);
@@ -391,7 +339,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
     }
 
     private AlertDialog.Builder createAlertDialogBuilder(final PresentationSession session, final SecondScreenPresentation[] presentations, final String[] items) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Select Presentation Display").setItems(
                 items,
                 new DialogInterface.OnClickListener() {
@@ -437,13 +385,13 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
             LOG.d(LOG_TAG, "Display " + display.getName() + " cannot show presentations.");
             return;
         }
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 boolean hadPresentations = getPresentations().size() > 0;
 
                 LOG.d(LOG_TAG, "creating a new SecondScreenPresentation inside Plugin::addDisplay");
-                SecondScreenPresentation presentation = new SecondScreenPresentation(getActivity(), display, getDefaultDisplay());
+                SecondScreenPresentation presentation = new SecondScreenPresentation(activity, display);
                 getPresentations().put(display.getDisplayId(), presentation);
                 LOG.d(LOG_TAG, "addDisplay(). Finished adding: " + display.getName());
 
